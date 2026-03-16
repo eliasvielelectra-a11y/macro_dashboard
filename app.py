@@ -248,24 +248,7 @@ MARKET_GROUPS = {
             },
         },
     },
-    "Bitcoin": {
-        "Crypto": {
-            "Bitcoin": {
-                "ticker": "BTC-USD",
-                "decimals": 2,
-                "description": "Largest cryptocurrency by market value.",
-                "why": "Included as the headline crypto risk asset.",
-                "source": DEFAULT_MARKET_SOURCE,
-            },
-            "Ethereum": {
-                "ticker": "ETH-USD",
-                "decimals": 2,
-                "description": "Major smart-contract crypto asset.",
-                "why": "Included as a second major crypto benchmark.",
-                "source": DEFAULT_MARKET_SOURCE,
-            },
-        }
-    },
+
     "Rates": {
         "US Rates": {
             "MOVE Index": {
@@ -278,7 +261,6 @@ MARKET_GROUPS = {
             "13-Week Bond": {
                 "ticker": "^IRX",
                 "decimals": 2,
-                "multiplier": 10,
                 "description": "Short-end U.S. Treasury yield.",
                 "why": "Included as a quick read on the front end of the curve.",
                 "source": DEFAULT_MARKET_SOURCE,
@@ -286,7 +268,6 @@ MARKET_GROUPS = {
             "5-Year Bond": {
                 "ticker": "^FVX",
                 "decimals": 2,
-                "multiplier": 10,
                 "description": "Intermediate U.S. Treasury yield.",
                 "why": "Included to track medium-term rate expectations.",
                 "source": DEFAULT_MARKET_SOURCE,
@@ -294,7 +275,6 @@ MARKET_GROUPS = {
             "10-Year Bond": {
                 "ticker": "^TNX",
                 "decimals": 2,
-                "multiplier": 10,
                 "description": "Benchmark U.S. Treasury yield.",
                 "why": "Included as the core global long-rate reference.",
                 "source": DEFAULT_MARKET_SOURCE,
@@ -302,7 +282,6 @@ MARKET_GROUPS = {
             "30-Year Bond": {
                 "ticker": "^TYX",
                 "decimals": 2,
-                "multiplier": 10,
                 "description": "Long-end U.S. Treasury yield.",
                 "why": "Included to watch long-duration bond market pressure.",
                 "source": DEFAULT_MARKET_SOURCE,
