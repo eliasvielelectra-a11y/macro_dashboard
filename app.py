@@ -240,7 +240,7 @@ MARKET_GROUPS = {
                 "source": DEFAULT_MARKET_SOURCE,
             },
             "Asia Dow": {
-                "ticker": "^AXDJ",
+                "ticker": "^ADOW",
                 "decimals": 2,
                 "description": "Regional Asia-Pacific blue-chip basket.",
                 "why": "Included for a broader regional Asia-Pacific snapshot.",
