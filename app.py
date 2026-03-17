@@ -239,13 +239,7 @@ MARKET_GROUPS = {
                 "why": "Included for Hong Kong and China-linked market sentiment.",
                 "source": DEFAULT_MARKET_SOURCE,
             },
-            "Asia Dow": {
-                "ticker": "^ADOW",
-                "decimals": 2,
-                "description": "Regional Asia-Pacific blue-chip basket.",
-                "why": "Included for a broader regional Asia-Pacific snapshot.",
-                "source": DEFAULT_MARKET_SOURCE,
-            },
+
         },
     },
 
