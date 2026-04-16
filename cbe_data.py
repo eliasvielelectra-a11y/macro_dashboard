@@ -3,6 +3,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 from typing import Any
+from datetime import datetime, timezone
 
 import requests
 from bs4 import BeautifulSoup
@@ -30,6 +31,9 @@ class CBEStatsResult:
     source_label: str
     fetch_status: str
     notes: list[str]
+    fetched_at_utc: str
+    used_fallback_keys: list[str]
+    parsed_key_count: int
 
 
 def _clean_text(text: str) -> str:
@@ -99,19 +103,62 @@ def _parse_cbe_homepage_text(text: str) -> dict[str, Any]:
     }
 
 
-def _merge_with_fallback(parsed: dict[str, Any]) -> tuple[dict[str, Any], list[str]]:
+def _merge_with_fallback(parsed: dict[str, Any]) -> tuple[dict[str, Any], list[str], list[str]]:
     stats: dict[str, Any] = {}
     notes: list[str] = []
+    used_fallback_keys: list[str] = []
 
     for key, fallback_value in FALLBACK_CBE_STATS.items():
         value = parsed.get(key)
         if value is None:
             stats[key] = fallback_value
+            used_fallback_keys.append(key)
             notes.append(f"{key}: using fallback value")
         else:
             stats[key] = value
 
-    return stats, notes
+    return stats, notes, used_fallback_keys
+
+
+
+def _is_reasonable_value(key: str, value: Any) -> bool:
+    if value is None:
+        return False
+
+    if key == "inflation_target_text":
+        return isinstance(value, str) and len(value.strip()) > 0
+
+    try:
+        v = float(value)
+    except Exception:
+        return False
+
+    reasonable_ranges = {
+        "overnight_deposit_rate": (0.0, 50.0),
+        "overnight_lending_rate": (0.0, 50.0),
+        "main_operation": (0.0, 50.0),
+        "conia": (0.0, 50.0),
+        "core_inflation_rate": (-10.0, 100.0),
+        "headline_inflation_rate": (-10.0, 100.0),
+    }
+
+    lo, hi = reasonable_ranges.get(key, (-1e12, 1e12))
+    return lo <= v <= hi
+
+
+def _validate_parsed(parsed: dict[str, Any]) -> tuple[dict[str, Any], list[str]]:
+    cleaned: dict[str, Any] = {}
+    notes: list[str] = []
+
+    for key, value in parsed.items():
+        if _is_reasonable_value(key, value):
+            cleaned[key] = value
+        else:
+            cleaned[key] = None
+            if value is not None:
+                notes.append(f"{key}: parsed value rejected by sanity check")
+
+    return cleaned, notes
 
 
 def fetch_cbe_stats(timeout_seconds: int = 20) -> CBEStatsResult:
@@ -136,14 +183,13 @@ def fetch_cbe_stats(timeout_seconds: int = 20) -> CBEStatsResult:
         soup = BeautifulSoup(response.text, "html.parser")
         full_text = soup.get_text(" ", strip=True)
 
-        parsed = _parse_cbe_homepage_text(full_text)
-        stats, notes = _merge_with_fallback(parsed)
+        parsed_raw = _parse_cbe_homepage_text(full_text)
+        parsed, validation_notes = _validate_parsed(parsed_raw)
+        stats, notes, used_fallback_keys = _merge_with_fallback(parsed)
+        notes = validation_notes + notes
 
-        missing_count = sum(
-            1
-            for key in FALLBACK_CBE_STATS.keys()
-            if f"{key}: using fallback value" in notes
-        )
+        missing_count = len(used_fallback_keys)
+        parsed_key_count = sum(1 for key in FALLBACK_CBE_STATS.keys() if parsed.get(key) is not None)
 
         fetch_status = "ok" if missing_count == 0 else "partial_fallback"
 
@@ -153,6 +199,9 @@ def fetch_cbe_stats(timeout_seconds: int = 20) -> CBEStatsResult:
             source_label="Central Bank of Egypt homepage key statistics",
             fetch_status=fetch_status,
             notes=notes,
+            fetched_at_utc=datetime.now(timezone.utc).isoformat(),
+            used_fallback_keys=used_fallback_keys,
+            parsed_key_count=parsed_key_count,
         )
 
     except Exception as exc:
