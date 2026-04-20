@@ -1,0 +1,22 @@
+Whole stack reconciled set
+
+Use these as final replacements:
+- whole_stack_app.py -> app.py
+- whole_stack_auth.py -> auth.py
+- whole_stack_cbe_data.py -> cbe_data.py
+- whole_stack_config.py -> config.py
+- whole_stack_data_loaders.py -> data_loaders.py
+- whole_stack_egypt_data.py -> egypt_data.py
+- whole_stack_manual_series.py -> manual_series.py
+- whole_stack_market_data.py -> market_data.py
+- whole_stack_ui_styles.py -> ui_styles.py
+- whole_stack_components_cards.py -> components/cards.py
+- whole_stack_components_charts.py -> components/charts.py
+- whole_stack_components_sections.py -> components/sections.py
+- whole_stack_components_init.py -> components/__init__.py
+
+Key reconciliation choices:
+- removed core inflation and policy-rate / CONIA indicators from the dashboard path
+- removed CBE snapshot rendering expectations from official cards
+- kept headline inflation only in Egypt Reaction official row
+- preserved the rest of the dashboard structure
